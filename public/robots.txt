@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api/
+Disallow: /build/
+Disallow: /send/
+
+# The landing variants carry <meta name="robots" content="noindex"> while the
+# A/B test runs — traffic comes from direct links, not search.

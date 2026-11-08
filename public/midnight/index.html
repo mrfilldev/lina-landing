@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title data-kt>Lina — ИИ-консьерж</title>
+<meta name="description" data-kc="meta_desc" content="Личный консьерж в одном чате. Записи, напоминания, брони, письма, поиск — Lina доводит дела до конца. Ранний доступ." />
+<meta name="robots" content="noindex, follow" />
+<meta name="theme-color" content="#05080d" />
+<link rel="canonical" href="https://lina.mrfilldev.workers.dev/midnight/" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="/favicon-180.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Lina" />
+<meta property="og:url" content="https://lina.mrfilldev.workers.dev/midnight/" />
+<meta property="og:locale" data-kc="og_locale" content="ru_RU" />
+<meta property="og:locale:alternate" content="en_US" />
+<meta property="og:title" data-kc="og_title" content="Выгрузите голову. Дальше — Lina." />
+<meta property="og:description" data-kc="og_desc" content="Личный ИИ-консьерж в одном чате: записи, брони, письма, поиск. Ранний доступ." />
+<meta property="og:image" content="https://lina.mrfilldev.workers.dev/og-midnight.jpg" />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" data-kc="og_title" content="Выгрузите голову. Дальше — Lina." />
+<meta name="twitter:description" data-kc="og_desc" content="Личный ИИ-консьерж в одном чате: записи, брони, письма, поиск. Ранний доступ." />
+<meta name="twitter:image" content="https://lina.mrfilldev.workers.dev/og-midnight.jpg" />
+
+<link rel="preload" as="font" type="font/woff2" href="/fonts/lora-400-cyrillic.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="/fonts/manrope-400-cyrillic.woff2" crossorigin />
+<link rel="stylesheet" href="/fonts.css" />
+
+<!-- ANALYTICS: paste your snippet here later (see README). Nothing loads until you do. -->
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  :root {
+    --bg: #05080d; --raised: #0e1620; --ink: #e9f1f7; --muted: #869cad;
+    --accent: #64e4d6; --accent-2: #4fb0e8; --line: rgba(126,156,176,.16);
+    --err: #ff9a8a;
+    --font-display: "Lora", Georgia, "Times New Roman", serif;
+    --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--bg); color: var(--ink);
+    background-image:
+      radial-gradient(120% 55% at 78% -5%, rgba(79,176,232,.16), transparent 60%),
+      radial-gradient(90% 45% at 8% 8%, rgba(100,228,214,.10), transparent 55%);
+  }
+  img { max-width: 100%; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+  .wrap { width: min(1080px, 100% - clamp(28px, 8vw, 96px)); margin-inline: auto; }
+
+  /* chrome */
+  .chrome {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 12px clamp(14px, 4vw, 40px);
+    background: rgba(5,8,13,.82); border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  }
+  .brand { display: flex; align-items: baseline; gap: 9px; font-weight: 700; }
+  .brand .mark { font-family: var(--font-display); font-weight: 500; font-size: 1.34rem; letter-spacing: .005em; }
+  .brand .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); align-self: center; }
+  .brand .khz { font-size: .68rem; text-transform: uppercase; letter-spacing: .16em; opacity: .55; font-weight: 600; }
+  .lang { display: inline-flex; align-items: center; gap: 2px; font-size: .8rem; font-weight: 700; }
+  .lang button { border: 0; background: transparent; padding: 5px 8px; border-radius: 7px; color: var(--ink); opacity: .45; letter-spacing: .04em; }
+  .lang button[aria-pressed="true"] { opacity: 1; background: rgba(255,255,255,.10); }
+  .lang .slash { opacity: .3; }
+
+  /* hero */
+  .hero { position: relative; padding-top: clamp(48px, 11vh, 116px); padding-bottom: clamp(48px, 9vh, 100px); }
+  .hero canvas.neural { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .55; }
+  .hero .wrap { position: relative; z-index: 2; }
+
+  .eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: .74rem; text-transform: uppercase; letter-spacing: .18em; font-weight: 600; color: var(--accent); }
+  .eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; opacity: .5; }
+
+  h1.big {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 4.4rem); line-height: 1.08; letter-spacing: -.01em;
+    text-wrap: balance; margin: .5em 0 0;
+  }
+  h1.big em { font-style: italic; color: var(--accent); }
+  .sub { max-width: 33em; margin: 1.15em 0 0; font-size: clamp(1.02rem, 1.6vw, 1.2rem); line-height: 1.6; color: var(--muted); }
+
+  /* signup */
+  .cta-block { margin-top: 2.2em; max-width: 32em; }
+  .field-label { display: block; font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; color: var(--muted); margin-bottom: 9px; }
+  .signup-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .field {
+    flex: 1 1 15em; min-width: 0;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--raised); color: var(--ink);
+    padding: 14px 20px; font: inherit; font-size: 1rem;
+  }
+  .field::placeholder { color: var(--muted); opacity: 1; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .signup-msg { margin: .85em 0 0; font-size: .9rem; line-height: 1.5; min-height: 1em; }
+  .signup-msg.is-error { color: var(--err); }
+  .signup-msg.is-ok { color: var(--accent); }
+  .micro { display: block; font-size: .82rem; opacity: .7; color: var(--muted); margin: .85em 0 0; }
+
+  .joined {
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid var(--line); border-radius: 14px; background: var(--raised);
+    padding: 16px 18px; font-size: .95rem; color: var(--ink); max-width: 30em;
+  }
+  .joined .chk {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    display: grid; place-content: center; font-size: .82rem; font-weight: 700;
+    background: var(--accent); color: #04201d;
+  }
+
+  .btn {
+    border: 0; border-radius: 999px; padding: 15px 30px; font-weight: 700; font-size: 1rem;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--accent); color: #04201d;
+    box-shadow: 0 0 0 1px rgba(100,228,214,.35), 0 18px 50px -18px rgba(100,228,214,.55);
+    transition: transform .18s ease, box-shadow .3s ease, opacity .2s ease;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(100,228,214,.5), 0 24px 60px -16px rgba(100,228,214,.7); }
+  .btn:active { transform: translateY(0); }
+  .btn[disabled] { opacity: .6; cursor: default; transform: none; box-shadow: 0 0 0 1px var(--line); }
+  .btn .arw { transition: transform .2s ease; }
+  .btn:hover .arw { transform: translateX(3px); }
+
+  /* band */
+  .band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(255,255,255,.015), transparent); }
+  .band .wrap { padding-block: clamp(40px, 7vh, 76px); }
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 40px); }
+  @media (max-width: 720px) { .trio { grid-template-columns: 1fr; gap: 26px; } }
+  .trio .ic { width: 30px; height: 30px; margin-bottom: 14px; color: var(--accent); }
+  .trio h3 { margin: 0 0 .4em; font-size: 1.06rem; letter-spacing: -.01em; }
+  .trio p { margin: 0; font-size: .95rem; line-height: 1.55; opacity: .8; color: var(--muted); }
+
+  .posline {
+    font-family: var(--font-display); font-weight: 400; font-style: italic;
+    font-size: clamp(1.5rem, 3.4vw, 2.3rem); line-height: 1.32; max-width: 20em;
+    text-wrap: balance; margin: 0; padding-block: clamp(56px, 10vh, 120px);
+  }
+  .posline b { font-style: normal; color: var(--accent); font-weight: 500; }
+
+  .foot { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 24px 30px; padding-block: 40px 56px; border-top: 1px solid var(--line); }
+  .foot .fnote { font-size: .84rem; line-height: 1.5; max-width: 26em; opacity: .72; color: var(--muted); }
+  .foot .cta-block { margin-top: 0; }
+  .foot .frights { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; opacity: .5; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="chrome">
+  <div class="brand">
+    <span class="mark">Lina</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span class="khz" data-k="kicker">AI concierge</span>
+  </div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang-btn="ru" aria-pressed="true">RU</button>
+    <span class="slash" aria-hidden="true">/</span>
+    <button type="button" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <canvas class="neural" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <span class="eyebrow" data-k="eyebrow">ИИ-консьерж · скоро</span>
+      <h1 class="big" data-k="h1">Выгрузите голову. Дальше — <em>Lina</em>.</h1>
+      <p class="sub" data-k="sub">Личный консьерж в одном чате. Записи, напоминания, брони, письма, поиск — Lina доводит дела до конца, пока вы живёте свою жизнь.</p>
+
+      <div class="cta-block" data-place="hero">
+        <form class="signup" data-signup novalidate>
+          <label class="field-label" for="email-hero" data-k="email_label">Email</label>
+          <div class="signup-row">
+            <input class="field" id="email-hero" type="email" name="email" required autocomplete="email"
+                   placeholder="ваш@email.com" data-k-ph="email_ph" />
+            <button type="submit" class="btn">
+              <span data-k="cta">Хочу ранний доступ</span><span class="arw" aria-hidden="true">→</span>
+            </button>
+          </div>
+          <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="signup-msg" data-msg role="status" aria-live="polite"></p>
+        </form>
+        <span class="micro" data-k="micro">Без спама. Одно письмо, когда откроем.</span>
+        <div class="joined" data-joined hidden>
+          <span class="chk" aria-hidden="true">✓</span>
+          <span data-k="joined_line">Вы в списке — напишем, как только откроем.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="trio">
+        <div>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+          <h3 data-k="f1t">Календарь и напоминания</h3>
+          <p data-k="f1b">Планирует встречи, двигает их при смене планов и напоминает ровно вовремя.</p>
+        </div>
+        <div>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16l-1.4 12.2a2 2 0 0 1-2 1.8H7.4a2 2 0 0 1-2-1.8L4 7Z"/><path d="M8.5 7a3.5 3.5 0 0 1 7 0"/></svg>
+          <h3 data-k="f2t">Брони и поручения</h3>
+          <p data-k="f2b">Столик, врач, билеты, доставка — Lina находит вариант и оформляет от начала до конца.</p>
+        </div>
+        <div>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6 8 7 8-7"/></svg>
+          <h3 data-k="f3t">Почта и тексты</h3>
+          <p data-k="f3b">Разбирает входящие, готовит ответы и пишет то сообщение, которое вы всё откладываете.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <p class="posline" data-k="pos">Не приложение с кнопками. <b>Просто чат, который доводит дела до конца.</b></p>
+  </div>
+
+  <div class="wrap">
+    <div class="foot">
+      <p class="fnote" data-k="foot_note">Идея на стадии проверки. Ваш интерес поможет решить, строить ли её, — ради этого и сделана эта страница.</p>
+      <div class="cta-block" data-place="footer">
+        <form class="signup" data-signup novalidate>
+          <label class="field-label" for="email-foot" data-k="email_label">Email</label>
+          <div class="signup-row">
+            <input class="field" id="email-foot" type="email" name="email" required autocomplete="email"
+                   placeholder="ваш@email.com" data-k-ph="email_ph" />
+            <button type="submit" class="btn">
+              <span data-k="cta">Хочу ранний доступ</span><span class="arw" aria-hidden="true">→</span>
+            </button>
+          </div>
+          <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="signup-msg" data-msg role="status" aria-live="polite"></p>
+        </form>
+        <div class="joined" data-joined hidden>
+          <span class="chk" aria-hidden="true">✓</span>
+          <span data-k="joined_line">Вы в списке — напишем, как только откроем.</span>
+        </div>
+      </div>
+      <span class="frights">© 2026 Lina</span>
+    </div>
+  </div>
+</main>
+
+<script>
+  var VARIANT = "midnight";
+
+  var I18N = {
+    ru: {
+      page_title: "Lina — ИИ-консьерж",
+      meta_desc: "Личный консьерж в одном чате. Записи, напоминания, брони, письма, поиск — Lina доводит дела до конца. Ранний доступ.",
+      og_title: "Выгрузите голову. Дальше — Lina.",
+      og_desc: "Личный ИИ-консьерж в одном чате: записи, брони, письма, поиск. Ранний доступ.",
+      og_locale: "ru_RU",
+      kicker: "AI concierge",
+      eyebrow: "ИИ-консьерж · скоро",
+      h1: "Выгрузите голову. Дальше — <em>Lina</em>.",
+      sub: "Личный консьерж в одном чате. Записи, напоминания, брони, письма, поиск — Lina доводит дела до конца, пока вы живёте свою жизнь.",
+      email_label: "Email",
+      cta: "Хочу ранний доступ",
+      micro: "Без спама. Одно письмо, когда откроем.",
+      email_ph: "ваш@email.com",
+      sending: "Отправляю…",
+      err_email: "Похоже, в адресе опечатка.",
+      err_net: "Не отправилось. Попробуйте ещё раз.",
+      err_rate: "Слишком часто. Попробуйте чуть позже.",
+      joined_line: "Вы в списке — напишем, как только откроем.",
+      joined_line_new: "Готово! Напишем, как только откроем доступ.",
+      f1t: "Календарь и напоминания",
+      f1b: "Планирует встречи, двигает их при смене планов и напоминает ровно вовремя.",
+      f2t: "Время с друзьями",
+      f2b: "Видит, когда вы оба свободны, бронирует слот и ставит встречу сразу в оба календаря.",
+      f3t: "Почта и тексты",
+      f3b: "Разбирает входящие, готовит ответы и пишет то сообщение, которое вы всё откладываете.",
+      pos: "Не приложение с кнопками. <b>Просто чат, который доводит дела до конца.</b>",
+      foot_note: "Идея на стадии проверки. Ваш интерес поможет решить, строить ли её, — ради этого и сделана эта страница.",
+    },
+    en: {
+      page_title: "Lina — AI concierge",
+      meta_desc: "A personal concierge in one chat. Bookings, reminders, emails, research — Lina finishes the job. Early access.",
+      og_title: "Put your mind down. Lina takes it from here.",
+      og_desc: "Your personal AI concierge in one chat: bookings, reminders, emails, research. Early access.",
+      og_locale: "en_US",
+      kicker: "AI concierge",
+      eyebrow: "AI concierge · coming soon",
+      h1: "Put your mind down. <em>Lina</em> takes it from here.",
+      sub: "Your personal concierge in one chat. Bookings, reminders, reservations, emails, research — Lina finishes the job while you get on with your day.",
+      email_label: "Email",
+      cta: "I want early access",
+      micro: "No spam. One email when we open.",
+      email_ph: "you@email.com",
+      sending: "Sending…",
+      err_email: "That email looks off — a typo?",
+      err_net: "Didn't go through. Try again?",
+      err_rate: "Too many tries. Give it a minute.",
+      joined_line: "You're on the list — we'll email you when we open.",
+      joined_line_new: "You're in. We'll email you the moment we open.",
+      f1t: "Calendar & reminders",
+      f1b: "Schedules meetings, moves them when plans change, and nudges you at the right moment.",
+      f2t: "Time with friends",
+      f2b: "Sees when you're both free, books the slot, and puts the meeting on both calendars at once.",
+      f3t: "Inbox & writing",
+      f3b: "Sorts what's coming in, drafts the replies, and writes the message you've been putting off.",
+      pos: "Not an app full of buttons. <b>Just a chat that gets things done.</b>",
+      foot_note: "This idea is being validated. Your interest helps us decide whether to build it — that's the whole point of this page.",
+    },
+  };
+
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  var UTM = (function () {
+    var q = new URLSearchParams(location.search), o = {};
+    ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","ref"].forEach(function (k) {
+      if (q.get(k)) o[k] = q.get(k);
+    });
+    return o;
+  })();
+  function track(event, extra) {
+    var payload = Object.assign({ event: event, variant: VARIANT }, UTM, extra || {});
+    try { (window.dataLayer = window.dataLayer || []).push(payload); } catch (e) {}
+    if (window.plausible) try { window.plausible(event, { props: payload }); } catch (e) {}
+    // console.debug("[lina]", payload);
+  }
+
+  var lang = (navigator.language || "ru").toLowerCase().indexOf("ru") === 0 ? "ru" : "en";
+  try { var pref = localStorage.getItem("lina_lang"); if (pref === "ru" || pref === "en") lang = pref; } catch (e) {}
+
+  function applyLang() {
+    var d = I18N[lang];
+    document.documentElement.lang = lang;
+    if (d.page_title) document.title = d.page_title;
+    document.querySelectorAll("[data-kc]").forEach(function (el) {
+      var k = el.getAttribute("data-kc");
+      if (d[k] != null) el.setAttribute("content", d[k]);
+    });
+    document.querySelectorAll("[data-k]").forEach(function (el) {
+      var k = el.getAttribute("data-k");
+      if (d[k] != null) el.innerHTML = d[k];
+    });
+    document.querySelectorAll("[data-k-ph]").forEach(function (el) {
+      var k = el.getAttribute("data-k-ph");
+      if (d[k] != null) el.setAttribute("placeholder", d[k]);
+    });
+    document.querySelectorAll("[data-lang-btn]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.langBtn === lang));
+    });
+  }
+  document.querySelectorAll("[data-lang-btn]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      lang = b.dataset.langBtn;
+      try { localStorage.setItem("lina_lang", lang); } catch (e) {}
+      applyLang();
+      track("lang_switch", { lang: lang });
+    });
+  });
+
+  /* ---- signup ---- */
+  function setMsg(el, text, kind) {
+    el.textContent = text;
+    el.classList.toggle("is-error", kind === "error");
+    el.classList.toggle("is-ok", kind === "ok");
+  }
+  function showJoined(block, lineKey) {
+    var form = block.querySelector("[data-signup]");
+    var micro = block.querySelector(".micro");
+    var card = block.querySelector("[data-joined]");
+    var line = card.querySelector("[data-k]");
+    if (form) form.hidden = true;
+    if (micro) micro.hidden = true;
+    line.setAttribute("data-k", lineKey);
+    line.textContent = I18N[lang][lineKey];
+    card.hidden = false;
+  }
+
+  var joined = false;
+  try { joined = localStorage.getItem("lina_joined") === "1"; } catch (e) {}
+  if (joined) {
+    document.querySelectorAll(".cta-block").forEach(function (b) { showJoined(b, "joined_line"); });
+  }
+
+  document.querySelectorAll("[data-signup]").forEach(function (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var block = form.closest(".cta-block");
+      var place = block.getAttribute("data-place");
+      var msg = form.querySelector("[data-msg]");
+      var btn = form.querySelector("button[type=submit]");
+      var btnLabel = btn.querySelector("span[data-k]");
+      var email = String(form.email.value || "").trim();
+
+      if (form.company.value) { finish("joined_line_new", false); return; } // honeypot
+      if (!EMAIL_RE.test(email)) {
+        setMsg(msg, I18N[lang].err_email, "error");
+        form.email.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      var restore = btnLabel.textContent;
+      btnLabel.textContent = I18N[lang].sending;
+      setMsg(msg, "", null);
+      track("signup_submit", { placement: place });
+
+      fetch("/api/interest", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: email, variant: VARIANT, lang: lang, utm: UTM }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }).catch(function () { return { status: r.status, body: {} }; }); })
+        .then(function (res) {
+          if (res.body && res.body.ok) {
+            try { localStorage.setItem("lina_joined", "1"); } catch (e) {}
+            track(res.body.dedup ? "signup_dedup" : "signup_success", { placement: place });
+            finish(res.body.dedup ? "joined_line" : "joined_line_new", true);
+          } else if (res.status === 429) {
+            fail("err_rate", "signup_rate_limited");
+          } else {
+            fail("err_net", "signup_error");
+          }
+        })
+        .catch(function () { fail("err_net", "signup_error"); });
+
+      function fail(errKey, ev) {
+        btn.disabled = false;
+        btnLabel.textContent = restore;
+        setMsg(msg, I18N[lang][errKey], "error");
+        track(ev, { placement: place });
+      }
+      function finish(lineKey) {
+        document.querySelectorAll(".cta-block").forEach(function (b) { showJoined(b, lineKey); });
+      }
+    });
+  });
+
+  /* ---- ambient neural canvas (30fps cap, pauses off-screen / hidden / reduced-motion) ---- */
+  (function () {
+    var canvas = document.querySelector("canvas.neural");
+    if (!canvas) return;
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var ctx = canvas.getContext("2d");
+    var w, h, dpr, nodes, raf, visible = true, last = 0;
+    function size() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var r = canvas.getBoundingClientRect();
+      w = r.width; h = r.height;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function init() {
+      size();
+      var count = Math.max(18, Math.min(46, Math.round(w / 32)));
+      nodes = Array.from({ length: count }, function () {
+        return { x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - .5) * .16, vy: (Math.random() - .5) * .16,
+          r: Math.random() * 1.5 + .6 };
+      });
+      step();
+    }
+    function step() {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+      }
+      for (var a = 0; a < nodes.length; a++) {
+        for (var b = a + 1; b < nodes.length; b++) {
+          var p = nodes[a], q = nodes[b];
+          var dist = Math.hypot(p.x - q.x, p.y - q.y);
+          if (dist < 130) {
+            ctx.strokeStyle = "rgba(100,228,214," + ((1 - dist / 130) * .2) + ")";
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+          }
+        }
+      }
+      for (var k = 0; k < nodes.length; k++) {
+        var m = nodes[k];
+        ctx.fillStyle = "rgba(150,235,226,.7)";
+        ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    function tick(now) {
+      if (now - last >= 33) { last = now; step(); }
+      if (!reduce && visible) raf = requestAnimationFrame(tick);
+    }
+    function run() { if (reduce || !visible) return; cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); }
+    init();
+    var t;
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(function () { init(); run(); }, 200); });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) { visible = entries[0].isIntersecting; run(); }, { threshold: 0 }).observe(canvas);
+    } else { run(); }
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) run(); });
+  })();
+
+  applyLang();
+  track(joined ? "return_view" : "page_view");
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#e8ebe4"/>
+
+  <!-- thin rules echoing the site's trio -->
+  <g stroke="#23261f" stroke-opacity="0.16" stroke-width="2">
+    <line x1="90" y1="470" x2="1110" y2="470"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="90" y="100" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="38" fill="#23261f">Lina</text>
+  <circle cx="182" cy="88" r="5" fill="#2f5a45"/>
+
+  <!-- eyebrow -->
+  <text x="92" y="252" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="600" font-size="22" letter-spacing="5" fill="#2f5a45">AI CONCIERGE · РАННИЙ ДОСТУП</text>
+
+  <!-- headline -->
+  <text x="86" y="336" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="76" letter-spacing="-1" fill="#23261f">Меньше хаоса.</text>
+  <text x="86" y="426" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="76" letter-spacing="-1" fill="#23261f">Больше жизни.</text>
+  <rect x="88" y="438" width="470" height="9" fill="#c5674a"/>
+
+  <!-- sub -->
+  <text x="90" y="524" font-family="'Helvetica Neue', Arial, sans-serif" font-size="24" fill="#5b6154">Личный консьерж, который помнит, планирует и разбирается с мелочами.</text>
+</svg>

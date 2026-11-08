@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lina · генератор ссылок</title>
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#05080d" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-32.png" sizes="32x32" />
+
+<link rel="stylesheet" href="/fonts.css" />
+<script src="/build/qrcode.js"></script>
+<!-- qrcode-generator 1.4.4 by Kazuhiko Arase, MIT — vendored so /build works without a CDN -->
+
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  :root {
+    --bg: #05080d; --raised: #0e1620; --raised-2: #131f2c; --ink: #e9f1f7;
+    --muted: #869cad; --accent: #64e4d6; --line: rgba(126,156,176,.16);
+    --err: #ff9a8a;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; padding: 0 clamp(16px, 4vw, 40px) 80px;
+    font-family: "Manrope", system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--ink);
+    background-image: radial-gradient(90% 40% at 82% -8%, rgba(79,176,232,.14), transparent 60%);
+    background-attachment: fixed;
+  }
+  a { color: var(--accent); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 26px 0 30px; }
+  header .mark { font-family: "Lora", Georgia, serif; font-weight: 500; font-size: 1.5rem; }
+  header .mark b { color: var(--accent); font-weight: 500; }
+  header .sub { font-size: .82rem; color: var(--muted); }
+  header a.home { font-size: .82rem; }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+  @media (min-width: 800px) { .grid { grid-template-columns: 1.05fr .95fr; align-items: start; } }
+
+  .panel { background: var(--raised); border: 1px solid var(--line); border-radius: 14px; padding: clamp(16px, 3vw, 24px); }
+
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label.lbl { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); font-weight: 600; margin-bottom: 9px; }
+  label.lbl .hint { text-transform: none; letter-spacing: 0; font-weight: 400; opacity: .8; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    border: 1px solid var(--line); background: var(--raised-2); color: var(--ink);
+    border-radius: 999px; padding: 7px 13px; font-size: .84rem; font-weight: 500;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: #04201d; border-color: var(--accent); }
+
+  input[type=text] {
+    width: 100%; margin-top: 8px;
+    background: var(--raised-2); border: 1px solid var(--line); border-radius: 9px;
+    color: var(--ink); padding: 11px 14px; font: inherit; font-size: .95rem;
+  }
+  input[type=text]::placeholder { color: var(--muted); }
+
+  .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--raised-2); border: 1px solid var(--line); }
+  .seg button { border: 0; background: transparent; padding: 8px 14px; border-radius: 8px; font-size: .85rem; font-weight: 600; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #04201d; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+  .presets .chip { font-weight: 600; }
+
+  /* output */
+  .out-url {
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .82rem; line-height: 1.55;
+    background: #04070c; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; word-break: break-all; color: var(--ink);
+  }
+  .out-url .k { color: var(--accent); }
+  .out-url .base { color: var(--muted); }
+
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .btn {
+    border: 0; border-radius: 999px; padding: 11px 20px; font-weight: 700; font-size: .9rem;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #04201d;
+  }
+  .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+  .btn.ghost:hover { box-shadow: inset 0 0 0 1px var(--accent); }
+  .btn.copied { background: var(--raised-2); color: var(--accent); box-shadow: inset 0 0 0 1px var(--line); }
+
+  .qr-card { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .qr-tile { background: #fff; border-radius: 14px; padding: 16px; width: min(280px, 72vw); }
+  .qr-tile svg { display: block; width: 100%; height: auto; }
+  .qr-meta { font-size: .78rem; color: var(--muted); text-align: center; }
+
+  .note { font-size: .8rem; color: var(--muted); line-height: 1.5; margin-top: 22px; }
+  .note code { font-family: "JetBrains Mono", monospace; background: var(--raised-2); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="mark">Lina<b>.</b> <span style="font-family:'Manrope',sans-serif;font-size:1rem">генератор ссылок</span></div>
+      <div class="sub">размеченный URL + QR под каждый канал</div>
+    </div>
+    <span class="home">сайт: <a href="/midnight/">midnight</a> · <a href="/daylight/">daylight</a></span>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="field">
+        <label class="lbl">Быстрый пресет</label>
+        <div class="presets" id="presets"></div>
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="src">Канал <span class="hint">— utm_source</span></label>
+        <div class="chips" id="srcChips"></div>
+        <input type="text" id="src" placeholder="или впиши свой: telegram, reddit, threads…" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="med">Размещение <span class="hint">— utm_medium</span></label>
+        <div class="chips" id="medChips"></div>
+        <input type="text" id="med" placeholder="post, dm, comment, bio, story, group, qr…" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="camp">Кампания <span class="hint">— utm_campaign</span></label>
+        <input type="text" id="camp" value="launch" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="content">Твоя метка <span class="hint">— utm_content, необязательно, чтобы отследить свой вклад</span></label>
+        <input type="text" id="content" placeholder="напр. friend, reel-15sep" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="lbl">Вариант дизайна</label>
+        <div class="seg" role="group" aria-label="Вариант">
+          <button type="button" data-v="" aria-pressed="true">Авто 50/50</button>
+          <button type="button" data-v="midnight" aria-pressed="false">midnight</button>
+          <button type="button" data-v="daylight" aria-pressed="false">daylight</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <label class="lbl">Готовая ссылка</label>
+      <div class="out-url" id="outUrl"></div>
+      <div class="row">
+        <button type="button" class="btn" id="copyBtn">Копировать ссылку</button>
+        <a class="btn ghost" id="openBtn" target="_blank" rel="noopener">Открыть ↗</a>
+      </div>
+
+      <div class="qr-card">
+        <div class="qr-tile" id="qrTile"></div>
+        <div class="row" style="margin-top:0">
+          <button type="button" class="btn ghost" id="pngBtn">Скачать PNG</button>
+          <button type="button" class="btn ghost" id="svgBtn">Скачать SVG</button>
+        </div>
+        <div class="qr-meta" id="qrMeta"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    Держи <code>utm_source</code> коротким и постоянным — <code>instagram</code>, не <code>insta</code>/<code>ig</code>,
+    иначе в сводке будет три разных источника. Сплит 50/50 работает на всех ссылках; «Вариант дизайна» форсит один
+    через <code>&amp;v=</code>. QR ведёт на ту же ссылку — метки внутри сохраняются.
+  </p>
+</div>
+
+<script>
+  var BASE = "https://lina.mrfilldev.workers.dev/";
+
+  var SRC = ["telegram","reddit","threads","instagram","x","linkedin","vk","dzen","pikabu","facebook","producthunt","betalist","hn","irl","friends"];
+  var MED = ["post","dm","comment","bio","story","group","listing","article","qr","referral"];
+  var PRESETS = [
+    ["Telegram · пост", "telegram", "post"],
+    ["Telegram · личка", "telegram", "dm"],
+    ["Reddit · пост", "reddit", "post"],
+    ["Reddit · коммент", "reddit", "comment"],
+    ["Threads", "threads", "post"],
+    ["Instagram · шапка", "instagram", "bio"],
+    ["Instagram · сторис", "instagram", "story"],
+    ["X / Twitter", "x", "post"],
+    ["LinkedIn", "linkedin", "post"],
+    ["VK", "vk", "post"],
+    ["Дзен", "dzen", "article"],
+    ["Facebook · группа", "facebook", "group"],
+    ["Product Hunt", "producthunt", "listing"],
+    ["QR оффлайн", "irl", "qr"],
+    ["Друзья / сарафан", "friends", "referral"],
+  ];
+
+  var state = { src: "telegram", med: "post", camp: "launch", content: "", v: "" };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var srcInput = $("src"), medInput = $("med"), campInput = $("camp"), contentInput = $("content");
+
+  function chipRow(host, values, key) {
+    host.innerHTML = "";
+    values.forEach(function (val) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = val;
+      b.setAttribute("aria-pressed", String(state[key] === val));
+      b.addEventListener("click", function () {
+        state[key] = val;
+        if (key === "src") srcInput.value = val;
+        if (key === "med") medInput.value = val;
+        render();
+      });
+      host.appendChild(b);
+    });
+  }
+
+  function buildPresets() {
+    var host = $("presets");
+    PRESETS.forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = p[0];
+      b.addEventListener("click", function () {
+        state.src = p[1]; state.med = p[2];
+        srcInput.value = p[1]; medInput.value = p[2];
+        render();
+      });
+      host.appendChild(b);
+    });
+  }
+
+  function slug(s) {
+    return String(s).trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_\-]/g, "");
+  }
+
+  function currentUrl() {
+    var u = new URL(BASE);
+    if (state.src) u.searchParams.set("utm_source", slug(state.src));
+    if (state.med) u.searchParams.set("utm_medium", slug(state.med));
+    if (state.camp) u.searchParams.set("utm_campaign", slug(state.camp));
+    if (state.content) u.searchParams.set("utm_content", slug(state.content));
+    if (state.v) u.searchParams.set("v", state.v);
+    return u.toString();
+  }
+
+  function highlight(url) {
+    var i = url.indexOf("?");
+    if (i < 0) return '<span class="base">' + url + "</span>";
+    var head = '<span class="base">' + url.slice(0, i + 1) + "</span>";
+    var qs = url.slice(i + 1).split("&").map(function (pair) {
+      var kv = pair.split("=");
+      return '<span class="k">' + kv[0] + "</span>=" + (kv[1] || "");
+    }).join("&amp;");
+    return head + qs;
+  }
+
+  var lastSvgEl = null;
+
+  function render() {
+    chipRow($("srcChips"), SRC, "src");
+    chipRow($("medChips"), MED, "med");
+    document.querySelectorAll("[data-v]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === state.v));
+    });
+
+    var url = currentUrl();
+    $("outUrl").innerHTML = highlight(url);
+    $("openBtn").href = url;
+
+    var copyBtn = $("copyBtn");
+    copyBtn.classList.remove("copied");
+    copyBtn.textContent = "Копировать ссылку";
+
+    // QR
+    try {
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      $("qrTile").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+      lastSvgEl = $("qrTile").querySelector("svg");
+      $("qrMeta").textContent = url.length + " символов · коррекция M";
+    } catch (e) {
+      $("qrTile").innerHTML = "";
+      $("qrMeta").textContent = "не удалось построить QR";
+      lastSvgEl = null;
+    }
+  }
+
+  function fileStub() {
+    return ("lina-" + slug(state.src || "link") + "-" + slug(state.med || "x") + (state.v ? "-" + state.v : "")).replace(/-+$/, "");
+  }
+
+  function downloadBlob(blob, name) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  $("copyBtn").addEventListener("click", function () {
+    var url = currentUrl();
+    var done = function () {
+      var b = $("copyBtn");
+      b.classList.add("copied");
+      b.textContent = "Скопировано ✓";
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, function () { legacyCopy(url); done(); });
+    } else { legacyCopy(url); done(); }
+  });
+  function legacyCopy(text) {
+    var t = document.createElement("textarea");
+    t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    t.remove();
+  }
+
+  $("svgBtn").addEventListener("click", function () {
+    if (!lastSvgEl) return;
+    var xml = new XMLSerializer().serializeToString(lastSvgEl);
+    downloadBlob(new Blob([xml], { type: "image/svg+xml" }), fileStub() + ".svg");
+  });
+
+  $("pngBtn").addEventListener("click", function () {
+    if (!lastSvgEl) return;
+    var size = 720;
+    var xml = new XMLSerializer().serializeToString(lastSvgEl);
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement("canvas");
+      c.width = size; c.height = size;
+      var x = c.getContext("2d");
+      x.fillStyle = "#fff"; x.fillRect(0, 0, size, size);
+      x.imageSmoothingEnabled = false;
+      x.drawImage(img, 0, 0, size, size);
+      c.toBlob(function (blob) { downloadBlob(blob, fileStub() + ".png"); }, "image/png");
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
+  });
+
+  [["src","src"],["med","med"],["camp","camp"],["content","content"]].forEach(function (p) {
+    $(p[0]).addEventListener("input", function () { state[p[1]] = this.value; render(); });
+  });
+  document.querySelectorAll("[data-v]").forEach(function (b) {
+    b.addEventListener("click", function () { state.v = b.getAttribute("data-v"); render(); });
+  });
+
+  srcInput.value = state.src;
+  medInput.value = state.med;
+  buildPresets();
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lina · отправить в канал</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#05080d" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-32.png" sizes="32x32" />
+<link rel="stylesheet" href="/fonts.css" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  :root {
+    --bg: #05080d; --raised: #0e1620; --raised-2: #131f2c; --ink: #e9f1f7;
+    --muted: #869cad; --accent: #64e4d6; --line: rgba(126,156,176,.16);
+    --err: #ff9a8a; --ok: #64e4d6; --warn: #f2c56b;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; padding: 0 clamp(16px, 4vw, 40px) 90px;
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.55;
+    background-image: radial-gradient(90% 40% at 82% -8%, rgba(79,176,232,.13), transparent 60%);
+    background-attachment: fixed;
+  }
+  a { color: var(--accent); }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  header { padding: 28px 0 26px; }
+  header .mark { font-family: "Lora", Georgia, serif; font-size: 1.5rem; }
+  header .mark b { color: var(--accent); font-weight: 500; }
+  header .sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
+
+  .panel { background: var(--raised); border: 1px solid var(--line); border-radius: 14px; padding: clamp(16px, 3vw, 22px); transition: border-color .15s, background .15s; }
+  .panel.drag { border-color: var(--accent); background: #0c1a22; }
+
+  .lbl { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .13em; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+
+  input[type=text], input[type=password], textarea {
+    width: 100%; background: var(--raised-2); border: 1px solid var(--line); border-radius: 9px;
+    color: var(--ink); padding: 11px 14px; font-size: .95rem;
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  textarea {
+    min-height: 170px; resize: vertical; line-height: 1.5;
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .88rem;
+  }
+
+  .warn {
+    border-left: 2px solid var(--warn); background: rgba(242,197,107,.06);
+    padding: 12px 14px; border-radius: 0 9px 9px 0; font-size: .86rem; color: #e7d6ac; margin-bottom: 16px;
+  }
+
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  .grow { flex: 1; }
+
+  .btn {
+    border: 0; border-radius: 999px; padding: 12px 24px; font-weight: 700; font-size: .92rem;
+    background: var(--accent); color: #04201d;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: opacity .2s, transform .15s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn[disabled] { opacity: .5; cursor: default; transform: none; }
+  .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+  .btn.ghost:hover { box-shadow: inset 0 0 0 1px var(--accent); }
+  .btn.sm { padding: 8px 15px; font-size: .82rem; font-weight: 600; }
+
+  .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--raised-2); border: 1px solid var(--line); }
+  .seg button { border: 0; background: transparent; padding: 7px 13px; border-radius: 8px; font-size: .84rem; font-weight: 600; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #04201d; }
+
+  .attach { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 12px; }
+  .attach .hint { font-size: .78rem; color: var(--muted); }
+  .thumb { display: inline-flex; align-items: center; gap: 10px; background: var(--raised-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px 6px 6px; max-width: 100%; }
+  .thumb img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex: none; }
+  .thumb .fn { font-size: .8rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
+  .thumb .sz { font-size: .72rem; color: var(--muted); flex: none; }
+  .thumb .rm { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; line-height: 1; padding: 2px 4px; }
+  .thumb .rm:hover { color: var(--err); }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 14px 18px; margin-top: 14px; font-size: .86rem; color: var(--muted); }
+  .opts label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+  .opts input { accent-color: var(--accent); width: 15px; height: 15px; }
+
+  .meta-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .target { font-size: .88rem; color: var(--ink); }
+  .target b { color: var(--accent); font-weight: 700; }
+  .target.bad { color: var(--err); }
+  .counter { font-family: "JetBrains Mono", monospace; font-size: .76rem; color: var(--muted); }
+  .counter.over { color: var(--err); }
+
+  .result { margin-top: 14px; font-size: .88rem; min-height: 1.2em; }
+  .result.ok { color: var(--ok); }
+  .result.err { color: var(--err); white-space: pre-wrap; word-break: break-word; }
+
+  details.cheat { margin-top: 20px; font-size: .84rem; color: var(--muted); }
+  details.cheat summary { cursor: pointer; color: var(--ink); }
+  details.cheat code { font-family: "JetBrains Mono", monospace; background: var(--raised-2); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+  details.cheat p { margin: 8px 0 0; }
+
+  .log { margin-top: 26px; }
+  .log h2 { font-size: .72rem; text-transform: uppercase; letter-spacing: .13em; color: var(--muted); font-weight: 700; margin: 0 0 10px; }
+  .log ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .log li { border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; font-size: .82rem; background: var(--raised); }
+  .log li .t { color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: .72rem; }
+  .log li .x { color: var(--ink); white-space: pre-wrap; word-break: break-word; margin-top: 3px; opacity: .85; }
+
+  .foot { margin-top: 34px; font-size: .78rem; color: var(--muted); }
+  .foot a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">Lina<b>.</b> отправить в канал</div>
+    <div class="sub">пост от имени бота @your_bot — личный инструмент</div>
+  </header>
+
+  <!-- token gate -->
+  <section class="panel" id="gate" hidden>
+    <div class="warn">
+      Кто угодно с этим токеном может писать в канал от имени бота.
+      Не открывай эту страницу на чужих устройствах и не делись ссылкой.
+    </div>
+    <label class="lbl" for="tok">Админ-токен (EXPORT_TOKEN)</label>
+    <input type="password" id="tok" autocomplete="off" spellcheck="false" placeholder="вставь секрет" />
+    <div class="row">
+      <button class="btn" id="tokSave">Сохранить</button>
+      <span class="result err" id="gateMsg"></span>
+    </div>
+  </section>
+
+  <!-- composer -->
+  <section class="panel" id="composer" hidden>
+    <div class="meta-row">
+      <span class="target" id="target">проверяю токен…</span>
+      <span class="counter" id="counter">0 / 4096</span>
+    </div>
+
+    <textarea id="text" placeholder="Текст сообщения…"></textarea>
+
+    <div class="attach" id="attach">
+      <button type="button" class="btn ghost sm" id="pickBtn">📎 Фото</button>
+      <input type="file" id="file" accept="image/*" hidden />
+      <div class="thumb" id="thumb" hidden>
+        <img id="thumbImg" alt="" />
+        <span class="fn" id="thumbName"></span>
+        <span class="sz" id="thumbSize"></span>
+        <button type="button" class="rm" id="thumbRm" aria-label="Убрать фото">×</button>
+      </div>
+      <span class="hint" id="attachHint">или перетащи сюда / вставь из буфера</span>
+    </div>
+
+    <div class="row">
+      <div class="seg" role="group" aria-label="Формат">
+        <button type="button" data-mode="plain" aria-pressed="true">Текст</button>
+        <button type="button" data-mode="html" aria-pressed="false">HTML</button>
+        <button type="button" data-mode="markdown" aria-pressed="false">Markdown</button>
+      </div>
+    </div>
+
+    <div class="opts">
+      <label id="previewOpt"><input type="checkbox" id="preview" /> Превью ссылок</label>
+      <label><input type="checkbox" id="silent" /> Без звука</label>
+    </div>
+
+    <div class="row">
+      <button class="btn grow" id="send">Отправить в канал</button>
+    </div>
+    <div class="result" id="result"></div>
+
+    <details class="cheat">
+      <summary>Форматирование</summary>
+      <p><b>HTML</b> (Telegram): <code>&lt;b&gt;</code> <code>&lt;i&gt;</code> <code>&lt;u&gt;</code> <code>&lt;s&gt;</code> <code>&lt;a href="…"&gt;</code> <code>&lt;code&gt;</code> <code>&lt;pre&gt;</code> <code>&lt;blockquote&gt;</code> <code>&lt;tg-spoiler&gt;</code>. Символы <code>&lt; &gt; &amp;</code> в обычном тексте экранируй.</p>
+      <p><b>Markdown</b> (MarkdownV2): <code>*жирный*</code> <code>_курсив_</code> <code>`код`</code> <code>[текст](url)</code> <code>||спойлер||</code>. Спецсимволы <code>_ * [ ] ( ) ~ ` &gt; # + - = | { } . !</code> экранируй через <code>\</code>.</p>
+      <p>С фото текст становится <b>подписью</b> (лимит 1024). Форматы работают и там.</p>
+    </details>
+
+    <div class="foot">
+      <a href="#" id="forget">сменить токен</a> · <a href="/build/">генератор ссылок</a>
+    </div>
+  </section>
+
+  <div class="log" id="logWrap" hidden>
+    <h2>Отправлено в этой сессии</h2>
+    <ul id="log"></ul>
+  </div>
+</div>
+
+<script>
+  var KEY = "lina_admin_token";
+  var TEXT_MAX = 4096, CAPTION_MAX = 1024, PHOTO_MAX = 10 * 1024 * 1024;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var token = "";
+  try { token = localStorage.getItem(KEY) || ""; } catch (e) {}
+
+  var state = { mode: "plain", photo: null, photoUrl: null };
+
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function kb(n) { return n < 1024 ? n + " B" : n < 1048576 ? (n / 1024).toFixed(0) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
+  function limit() { return state.photo ? CAPTION_MAX : TEXT_MAX; }
+
+  function showGate(msg) {
+    $("gate").hidden = false; $("composer").hidden = true;
+    $("gateMsg").textContent = msg || "";
+    $("tok").focus();
+  }
+  function showComposer() {
+    $("gate").hidden = true; $("composer").hidden = false;
+    verifyToken();
+  }
+
+  function verifyToken() {
+    $("target").textContent = "проверяю токен…";
+    $("target").classList.remove("bad");
+    fetch("/api/send", { headers: { "authorization": "Bearer " + token } })
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (res) {
+        if (res.s === 401) { clearToken(); showGate("Токен не подошёл — вставь заново."); return; }
+        if (res.j && res.j.ok && res.j.chat) {
+          $("target").innerHTML = "→ <b>" + esc(res.j.chat.title) + "</b> <span style='color:var(--muted)'>" + esc(res.j.chat.type || "") + "</span>";
+        } else {
+          $("target").textContent = "канал не отвечает (" + ((res.j && res.j.error) || res.s) + ")";
+          $("target").classList.add("bad");
+        }
+      })
+      .catch(function () { $("target").textContent = "нет сети"; $("target").classList.add("bad"); });
+  }
+
+  function clearToken() { token = ""; try { localStorage.removeItem(KEY); } catch (e) {} }
+
+  /* token gate */
+  $("tokSave").addEventListener("click", function () {
+    var v = $("tok").value.trim();
+    if (!v) { $("gateMsg").textContent = "пусто"; return; }
+    token = v;
+    try { localStorage.setItem(KEY, v); } catch (e) {}
+    $("tok").value = "";
+    showComposer();
+  });
+  $("tok").addEventListener("keydown", function (e) { if (e.key === "Enter") $("tokSave").click(); });
+  $("forget").addEventListener("click", function (e) { e.preventDefault(); clearToken(); showGate(""); });
+
+  /* format toggle */
+  document.querySelectorAll("[data-mode]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.mode = b.dataset.mode;
+      document.querySelectorAll("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    });
+  });
+
+  /* counter */
+  function updateCounter() {
+    var n = ($("text").value || "").length;
+    var c = $("counter");
+    c.textContent = n + " / " + limit();
+    c.classList.toggle("over", n > limit());
+  }
+  $("text").addEventListener("input", updateCounter);
+
+  /* photo */
+  function setPhoto(file) {
+    if (!file) return;
+    var res = $("result");
+    if (!/^image\//.test(file.type)) { res.className = "result err"; res.textContent = "Это не картинка."; return; }
+    if (file.size > PHOTO_MAX) { res.className = "result err"; res.textContent = "Фото больше 10 МБ — Telegram не примет. Сожми."; return; }
+    clearPhoto();
+    state.photo = file;
+    state.photoUrl = URL.createObjectURL(file);
+    $("thumbImg").src = state.photoUrl;
+    $("thumbName").textContent = file.name || "фото";
+    $("thumbSize").textContent = kb(file.size);
+    $("thumb").hidden = false;
+    $("attachHint").hidden = true;
+    $("previewOpt").hidden = true;
+    $("text").placeholder = "Подпись (необязательно)…";
+    res.className = "result"; res.textContent = "";
+    updateCounter();
+  }
+  function clearPhoto() {
+    if (state.photoUrl) { URL.revokeObjectURL(state.photoUrl); state.photoUrl = null; }
+    state.photo = null;
+    $("thumb").hidden = true;
+    $("attachHint").hidden = false;
+    $("previewOpt").hidden = false;
+    $("text").placeholder = "Текст сообщения…";
+    $("file").value = "";
+    updateCounter();
+  }
+  $("pickBtn").addEventListener("click", function () { $("file").click(); });
+  $("file").addEventListener("change", function () { setPhoto(this.files[0]); });
+  $("thumbRm").addEventListener("click", clearPhoto);
+
+  /* paste image */
+  document.addEventListener("paste", function (e) {
+    if ($("composer").hidden) return;
+    var items = (e.clipboardData && e.clipboardData.items) || [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf("image") === 0) {
+        var blob = items[i].getAsFile();
+        if (blob) {
+          var ext = (blob.type.split("/")[1] || "png").replace("jpeg", "jpg");
+          setPhoto(new File([blob], "pasted-" + Date.now() + "." + ext, { type: blob.type }));
+          e.preventDefault();
+        }
+        return;
+      }
+    }
+  });
+
+  /* drag & drop */
+  var panel = $("composer");
+  ["dragenter", "dragover"].forEach(function (ev) {
+    panel.addEventListener(ev, function (e) { e.preventDefault(); panel.classList.add("drag"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    panel.addEventListener(ev, function (e) { e.preventDefault(); if (ev === "dragleave" && panel.contains(e.relatedTarget)) return; panel.classList.remove("drag"); });
+  });
+  panel.addEventListener("drop", function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) setPhoto(f);
+  });
+
+  /* send */
+  var sending = false;
+  $("send").addEventListener("click", function () {
+    if (sending) return;
+    var text = $("text").value.replace(/\r\n/g, "\n").replace(/\s+$/, "");
+    var res = $("result");
+    res.className = "result"; res.textContent = "";
+
+    if (!state.photo && !text.trim()) { res.className = "result err"; res.textContent = "Пустое сообщение."; return; }
+    if (text.length > limit()) {
+      res.className = "result err";
+      res.textContent = state.photo ? "Подпись длиннее 1024 — Telegram не примет." : "Длиннее 4096 — Telegram не примет.";
+      return;
+    }
+
+    sending = true;
+    var btn = $("send");
+    btn.disabled = true;
+    var restore = btn.textContent;
+    btn.textContent = "Отправляю…";
+
+    var opts = { method: "POST" };
+    if (state.photo) {
+      var fd = new FormData();
+      fd.append("photo", state.photo, state.photo.name);
+      fd.append("text", text);
+      fd.append("mode", state.mode);
+      fd.append("silent", $("silent").checked ? "true" : "false");
+      opts.headers = { "authorization": "Bearer " + token };
+      opts.body = fd;
+    } else {
+      opts.headers = { "authorization": "Bearer " + token, "content-type": "application/json" };
+      opts.body = JSON.stringify({ text: text, mode: state.mode, preview: $("preview").checked, silent: $("silent").checked });
+    }
+
+    fetch("/api/send", opts)
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (out) {
+        if (out.j && out.j.ok) {
+          res.className = "result ok";
+          res.textContent = "✓ Отправлено" + (out.j.message_id ? " (#" + out.j.message_id + ")" : "");
+          addLog(text, !!state.photo);
+          $("text").value = "";
+          clearPhoto();
+          updateCounter();
+        } else if (out.s === 401) {
+          clearToken();
+          showGate("Токен перестал работать — вставь заново.");
+        } else if (out.s === 429) {
+          res.className = "result err";
+          res.textContent = "Слишком часто. Подожди пару минут.";
+        } else {
+          res.className = "result err";
+          var e = out.j || {};
+          var detail = e.telegram && e.telegram.description ? "\nTelegram: " + e.telegram.description : "";
+          res.textContent = "Не отправилось: " + (e.error || out.s) + detail;
+        }
+      })
+      .catch(function () { res.className = "result err"; res.textContent = "Нет сети."; })
+      .finally(function () {
+        sending = false;
+        btn.disabled = false;
+        btn.textContent = restore;
+      });
+  });
+
+  /* session log */
+  function addLog(text, hadPhoto) {
+    $("logWrap").hidden = false;
+    var li = document.createElement("li");
+    var t = document.createElement("span");
+    t.className = "t";
+    t.textContent = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) + " · " + (hadPhoto ? "фото" : state.mode);
+    var x = document.createElement("span");
+    x.className = "x";
+    x.textContent = (hadPhoto ? "🖼 " : "") + (text.length > 240 ? text.slice(0, 240) + "…" : (text || "(без подписи)"));
+    li.appendChild(t); li.appendChild(x);
+    $("log").insertBefore(li, $("log").firstChild);
+  }
+
+  /* boot */
+  updateCounter();
+  if (token) showComposer(); else showGate("");
+</script>
+</body>
+</html>

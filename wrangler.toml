@@ -1,0 +1,23 @@
+name = "lina"
+main = "src/index.js"
+compatibility_date = "2026-09-07"
+
+# Static assets (./public) are served by the Worker via the ASSETS binding.
+# The Worker only intercepts /api/*; everything else falls through to assets.
+[assets]
+directory = "public"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
+
+# Early-access signups.
+[[kv_namespaces]]
+binding = "LEADS"
+id = "<your-kv-namespace-id>"  # create with: npx wrangler kv namespace create LEADS
+
+# Daily Telegram report — 09:00 UTC = 12:00 MSK (UTC+3).
+[triggers]
+crons = ["0 9 * * *"]
+
+[observability]
+enabled = true

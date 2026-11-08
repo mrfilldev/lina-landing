@@ -1,0 +1,13 @@
+{
+  "name": "lina-landing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lina early-access landing — A/B split across /midnight and /daylight, served as a static Cloudflare Worker.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
